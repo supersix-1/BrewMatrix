@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone https://github.com/supersix-1/BrewMatrix.git \"C:/Users/ehood/AppData/Local/Temp/BrewMatrix-clone\")"
+    ]
+  }
+}
