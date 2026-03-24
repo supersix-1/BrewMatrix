@@ -1,8 +1,14 @@
 package com.brewmatrix.app.di
 
 import android.content.Context
+import com.brewmatrix.app.data.local.AppDatabase
+import com.brewmatrix.app.data.repository.RatioPresetRepository
 
-class AppContainer(private val context: Context) {
-    // Repositories and database will be added here as features are built
-    // Phase 2+: database, DAOs, repositories
+class AppContainer(context: Context) {
+
+    private val database = AppDatabase.getInstance(context)
+
+    val ratioPresetRepository: RatioPresetRepository = RatioPresetRepository(
+        ratioPresetDao = database.ratioPresetDao(),
+    )
 }
