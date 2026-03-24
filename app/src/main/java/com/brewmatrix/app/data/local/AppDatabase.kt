@@ -50,17 +50,26 @@ abstract class AppDatabase : RoomDatabase() {
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val database = getInstance(context)
-                            prepopulateRatioPresets(database.ratioPresetDao())
-                            prepopulateTimerPresets(
-                                database.timerPresetDao(),
-                                database.timerPhaseDao(),
-                            )
-                        }
+                        seedDefaults(context)
+                    }
+
+                    override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                        super.onDestructiveMigration(db)
+                        seedDefaults(context)
                     }
                 })
                 .build()
+        }
+
+        private fun seedDefaults(context: Context) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val database = getInstance(context)
+                prepopulateRatioPresets(database.ratioPresetDao())
+                prepopulateTimerPresets(
+                    database.timerPresetDao(),
+                    database.timerPhaseDao(),
+                )
+            }
         }
 
         private suspend fun prepopulateRatioPresets(dao: RatioPresetDao) {

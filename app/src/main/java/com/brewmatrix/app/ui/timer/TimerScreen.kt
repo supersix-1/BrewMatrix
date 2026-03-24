@@ -583,7 +583,7 @@ private fun ControlsRow(
             modifier = Modifier
                 .size(64.dp)
                 .then(
-                    if (timerState != TimerState.COMPLETED && hasPhases) {
+                    if (timerState != TimerState.COMPLETED) {
                         Modifier.clickable { onPlayPause() }
                     } else {
                         Modifier
