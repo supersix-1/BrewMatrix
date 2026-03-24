@@ -5,9 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.brewmatrix.app.data.local.dao.BeanDao
+import com.brewmatrix.app.data.local.dao.GrindSettingDao
+import com.brewmatrix.app.data.local.dao.GrinderDao
 import com.brewmatrix.app.data.local.dao.RatioPresetDao
 import com.brewmatrix.app.data.local.dao.TimerPhaseDao
 import com.brewmatrix.app.data.local.dao.TimerPresetDao
+import com.brewmatrix.app.data.local.entity.Bean
+import com.brewmatrix.app.data.local.entity.Grinder
+import com.brewmatrix.app.data.local.entity.GrindSetting
 import com.brewmatrix.app.data.local.entity.RatioPreset
 import com.brewmatrix.app.data.local.entity.TimerPhase
 import com.brewmatrix.app.data.local.entity.TimerPreset
@@ -20,8 +26,11 @@ import kotlinx.coroutines.launch
         RatioPreset::class,
         TimerPreset::class,
         TimerPhase::class,
+        Grinder::class,
+        Bean::class,
+        GrindSetting::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +38,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ratioPresetDao(): RatioPresetDao
     abstract fun timerPresetDao(): TimerPresetDao
     abstract fun timerPhaseDao(): TimerPhaseDao
+    abstract fun grinderDao(): GrinderDao
+    abstract fun beanDao(): BeanDao
+    abstract fun grindSettingDao(): GrindSettingDao
 
     companion object {
         @Volatile

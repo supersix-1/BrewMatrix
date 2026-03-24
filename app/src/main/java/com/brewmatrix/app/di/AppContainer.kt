@@ -2,6 +2,7 @@ package com.brewmatrix.app.di
 
 import android.content.Context
 import com.brewmatrix.app.data.local.AppDatabase
+import com.brewmatrix.app.data.repository.GrindMemoryRepository
 import com.brewmatrix.app.data.repository.RatioPresetRepository
 import com.brewmatrix.app.data.repository.TimerRepository
 
@@ -16,5 +17,11 @@ class AppContainer(context: Context) {
     val timerRepository: TimerRepository = TimerRepository(
         timerPresetDao = database.timerPresetDao(),
         timerPhaseDao = database.timerPhaseDao(),
+    )
+
+    val grindMemoryRepository: GrindMemoryRepository = GrindMemoryRepository(
+        grinderDao = database.grinderDao(),
+        beanDao = database.beanDao(),
+        grindSettingDao = database.grindSettingDao(),
     )
 }
