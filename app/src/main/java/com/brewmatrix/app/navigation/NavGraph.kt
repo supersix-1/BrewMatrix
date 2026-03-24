@@ -15,9 +15,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.brewmatrix.app.BrewMatrixApp
+import android.app.Application
 import com.brewmatrix.app.ui.calculator.CalculatorScreen
 import com.brewmatrix.app.ui.calculator.CalculatorViewModel
 import com.brewmatrix.app.ui.timer.TimerScreen
+import com.brewmatrix.app.ui.timer.TimerViewModel
 import com.brewmatrix.app.ui.grindmemory.GrindMemoryScreen
 import com.brewmatrix.app.ui.brewlog.BrewLogScreen
 
@@ -61,7 +63,14 @@ fun BrewMatrixNavHost(
             )
         }
         composable(BrewMatrixRoute.Timer.name) {
-            TimerScreen()
+            val context = LocalContext.current
+            val timerViewModel: TimerViewModel = viewModel(
+                factory = TimerViewModel.Factory(
+                    repository = appContainer.timerRepository,
+                    application = context.applicationContext as Application,
+                ),
+            )
+            TimerScreen(viewModel = timerViewModel)
         }
         composable(BrewMatrixRoute.GrindMemory.name) {
             GrindMemoryScreen()
