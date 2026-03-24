@@ -20,7 +20,9 @@ import com.brewmatrix.app.ui.calculator.CalculatorScreen
 import com.brewmatrix.app.ui.calculator.CalculatorViewModel
 import com.brewmatrix.app.ui.timer.TimerScreen
 import com.brewmatrix.app.ui.timer.TimerViewModel
+import com.brewmatrix.app.ui.grindmemory.AddEditGrindSettingScreen
 import com.brewmatrix.app.ui.grindmemory.GrindMemoryScreen
+import com.brewmatrix.app.ui.grindmemory.GrindMemoryViewModel
 import com.brewmatrix.app.ui.brewlog.BrewLogScreen
 
 enum class BrewMatrixRoute(
@@ -31,6 +33,11 @@ enum class BrewMatrixRoute(
     Timer(label = "Timer", icon = Icons.Filled.Timer),
     GrindMemory(label = "Grind", icon = Icons.Filled.Tune),
     BrewLog(label = "Log", icon = Icons.AutoMirrored.Filled.MenuBook),
+}
+
+// Non-tab routes
+object GrindMemoryRoutes {
+    const val ADD = "grind_memory/add"
 }
 
 @Composable
@@ -73,10 +80,47 @@ fun BrewMatrixNavHost(
             TimerScreen(viewModel = timerViewModel)
         }
         composable(BrewMatrixRoute.GrindMemory.name) {
-            GrindMemoryScreen()
+            val grindMemoryViewModel: GrindMemoryViewModel = viewModel(
+                factory = GrindMemoryViewModel.Factory(
+                    grindMemoryRepository = appContainer.grindMemoryRepository,
+                    ratioPresetRepository = appContainer.ratioPresetRepository,
+                    timerRepository = appContainer.timerRepository,
+                ),
+            )
+            GrindMemoryScreen(
+                viewModel = grindMemoryViewModel,
+                onNavigateToAdd = {
+                    navController.navigate(GrindMemoryRoutes.ADD)
+                },
+                onNavigateToCalculator = { _ ->
+                    // Quick-Brew: navigate to Calculator tab
+                    navController.navigate(BrewMatrixRoute.Calculator.name) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+            )
+        }
+        composable(GrindMemoryRoutes.ADD) {
+            // Share the same ViewModel instance with the GrindMemory list
+            val grindMemoryViewModel: GrindMemoryViewModel = viewModel(
+                factory = GrindMemoryViewModel.Factory(
+                    grindMemoryRepository = appContainer.grindMemoryRepository,
+                    ratioPresetRepository = appContainer.ratioPresetRepository,
+                    timerRepository = appContainer.timerRepository,
+                ),
+            )
+            AddEditGrindSettingScreen(
+                viewModel = grindMemoryViewModel,
+                onNavigateBack = { navController.popBackStack() },
+            )
         }
         composable(BrewMatrixRoute.BrewLog.name) {
             BrewLogScreen()
         }
     }
 }
+

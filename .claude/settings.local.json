@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git clone https://github.com/supersix-1/BrewMatrix.git \"C:/Users/ehood/AppData/Local/Temp/BrewMatrix-clone\")"
+      "Bash(git clone https://github.com/supersix-1/BrewMatrix.git \"C:/Users/ehood/AppData/Local/Temp/BrewMatrix-clone\")",
+      "Bash(ls -la \"C:\\\\Users\\\\ehood\\\\.claude\\\\projects\\\\D--Code-Projects-BrewMatrix-master\\\\memory\"\" 2>/dev/null || echo \"Memory directory does not exist \")",
+      "Bash(python -c \"import sys, json; data = json.load\\(sys.stdin\\); print\\(data[0][''text''][:8000]\\)\")",
+      "Bash(python -c \"import sys, json; data = json.load\\(sys.stdin\\); text = data[0][''text'']; print\\(text[8000:16000]\\)\")",
+      "Bash(python -c \"import sys, json; data = json.load\\(sys.stdin\\); text = data[0][''text'']; print\\(text[16000:24000]\\)\")",
+      "Bash(python -c \"import sys, json; data = json.load\\(sys.stdin\\); text = data[0][''text'']; print\\(text[24000:32000]\\)\")",
+      "Bash(mkdir -p \"D:/Code Projects/BrewMatrix-master/app/src/main/java/com/brewmatrix/app/data/local/entity\")",
+      "Bash(mkdir -p \"D:/Code Projects/BrewMatrix-master/app/src/main/java/com/brewmatrix/app/data/local/dao\")",
+      "Bash(mkdir -p \"D:/Code Projects/BrewMatrix-master/app/src/main/java/com/brewmatrix/app/data/repository\")"
     ]
   }
 }
