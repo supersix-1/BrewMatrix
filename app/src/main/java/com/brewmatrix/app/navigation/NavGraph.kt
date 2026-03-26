@@ -24,6 +24,7 @@ import com.brewmatrix.app.ui.grindmemory.AddEditGrindSettingScreen
 import com.brewmatrix.app.ui.grindmemory.GrindMemoryScreen
 import com.brewmatrix.app.ui.grindmemory.GrindMemoryViewModel
 import com.brewmatrix.app.ui.brewlog.BrewLogScreen
+import com.brewmatrix.app.ui.brewlog.BrewLogViewModel
 
 enum class BrewMatrixRoute(
     val label: String,
@@ -119,7 +120,13 @@ fun BrewMatrixNavHost(
             )
         }
         composable(BrewMatrixRoute.BrewLog.name) {
-            BrewLogScreen()
+            val brewLogViewModel: BrewLogViewModel = viewModel(
+                factory = BrewLogViewModel.Factory(
+                    brewLogRepository = appContainer.brewLogRepository,
+                    grindMemoryRepository = appContainer.grindMemoryRepository,
+                ),
+            )
+            BrewLogScreen(viewModel = brewLogViewModel)
         }
     }
 }
