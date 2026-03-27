@@ -1,5 +1,11 @@
 package com.brewmatrix.app.navigation
 
+import androidx.compose.animation.core.EaseInOutCubic
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -52,6 +58,10 @@ fun BrewMatrixNavHost(
         navController = navController,
         startDestination = BrewMatrixRoute.Calculator.name,
         modifier = modifier,
+        enterTransition = { fadeIn(tween(300, easing = EaseInOutCubic)) },
+        exitTransition = { fadeOut(tween(200, easing = EaseInOutCubic)) },
+        popEnterTransition = { fadeIn(tween(300, easing = EaseInOutCubic)) },
+        popExitTransition = { fadeOut(tween(200, easing = EaseInOutCubic)) },
     ) {
         composable(BrewMatrixRoute.Calculator.name) {
             val viewModel: CalculatorViewModel = viewModel(
@@ -91,7 +101,9 @@ fun BrewMatrixNavHost(
             GrindMemoryScreen(
                 viewModel = grindMemoryViewModel,
                 onNavigateToAdd = {
-                    navController.navigate(GrindMemoryRoutes.ADD)
+                    navController.navigate(GrindMemoryRoutes.ADD) {
+                        launchSingleTop = true
+                    }
                 },
                 onNavigateToCalculator = { _ ->
                     // Quick-Brew: navigate to Calculator tab
@@ -105,7 +117,21 @@ fun BrewMatrixNavHost(
                 },
             )
         }
-        composable(GrindMemoryRoutes.ADD) {
+        composable(
+            route = GrindMemoryRoutes.ADD,
+            enterTransition = {
+                slideInHorizontally(tween(300, easing = EaseInOutCubic)) { it }
+            },
+            exitTransition = {
+                slideOutHorizontally(tween(300, easing = EaseInOutCubic)) { it }
+            },
+            popEnterTransition = {
+                slideInHorizontally(tween(300, easing = EaseInOutCubic)) { -it }
+            },
+            popExitTransition = {
+                slideOutHorizontally(tween(300, easing = EaseInOutCubic)) { it }
+            },
+        ) {
             // Share the same ViewModel instance with the GrindMemory list
             val grindMemoryViewModel: GrindMemoryViewModel = viewModel(
                 factory = GrindMemoryViewModel.Factory(
