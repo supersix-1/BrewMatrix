@@ -45,7 +45,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -57,12 +59,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brewmatrix.app.data.local.entity.TimerPhase
+import kotlinx.coroutines.delay
 import com.brewmatrix.app.ui.theme.BrewMatrixTheme
 import com.brewmatrix.app.ui.theme.ButtonShape
 import com.brewmatrix.app.ui.theme.CardShape
@@ -233,63 +238,92 @@ private fun PresetSelector(
 ) {
     val extraColors = BrewMatrixTheme.extraColors
 
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        itemsIndexed(
-            items = presets,
-            key = { _, preset -> preset.preset.id },
-        ) { _, preset ->
-            val isActive = preset.preset.id == activePresetId
-            val gradientAlpha by animateFloatAsState(
-                targetValue = if (isActive) 1f else 0f,
-                animationSpec = tween(200),
-                label = "presetChipGradient",
-            )
+    if (presets.isEmpty()) {
+        Text(
+            text = "No timer presets saved — create one to get started",
+            style = MaterialTheme.typography.bodySmall,
+            color = extraColors.secondaryText,
+            modifier = Modifier.padding(vertical = 10.dp),
+        )
+    } else {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            itemsIndexed(
+                items = presets,
+                key = { _, preset -> preset.preset.id },
+            ) { index, preset ->
+                val isActive = preset.preset.id == activePresetId
 
-            Box(
-                modifier = Modifier
-                    .height(40.dp)
-                    .then(
-                        if (!isTimerActive) {
-                            Modifier.clickable { onPresetSelected(preset.preset.id) }
-                        } else {
-                            Modifier
-                        }
+                // Staggered fade-up animation
+                var visible by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) {
+                    delay(index * 50L)
+                    visible = true
+                }
+
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(animationSpec = tween(250)) +
+                        slideInVertically(
+                            initialOffsetY = { it / 4 },
+                            animationSpec = tween(250),
+                        ),
+                ) {
+                    val gradientAlpha by animateFloatAsState(
+                        targetValue = if (isActive) 1f else 0f,
+                        animationSpec = tween(200),
+                        label = "presetChipGradient",
                     )
-                    .drawBehind {
-                        if (gradientAlpha > 0f) {
-                            drawRoundRect(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(
-                                        extraColors.gradientStart.copy(alpha = gradientAlpha),
-                                        extraColors.gradientEnd.copy(alpha = gradientAlpha),
-                                    ),
-                                ),
-                                cornerRadius = CornerRadius(24.dp.toPx()),
+
+                    Box(
+                        modifier = Modifier
+                            .widthIn(max = 160.dp)
+                            .height(40.dp)
+                            .then(
+                                if (!isTimerActive) {
+                                    Modifier.clickable { onPresetSelected(preset.preset.id) }
+                                } else {
+                                    Modifier
+                                }
                             )
-                        }
+                            .drawBehind {
+                                if (gradientAlpha > 0f) {
+                                    drawRoundRect(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(
+                                                extraColors.gradientStart.copy(alpha = gradientAlpha),
+                                                extraColors.gradientEnd.copy(alpha = gradientAlpha),
+                                            ),
+                                        ),
+                                        cornerRadius = CornerRadius(24.dp.toPx()),
+                                    )
+                                }
+                            }
+                            .then(
+                                if (gradientAlpha < 1f) {
+                                    Modifier.border(
+                                        width = 1.dp,
+                                        color = extraColors.subtleBorder.copy(alpha = 1f - gradientAlpha),
+                                        shape = ChipShape,
+                                    )
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = preset.preset.name,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (isActive) Color.White
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
-                    .then(
-                        if (gradientAlpha < 1f) {
-                            Modifier.border(
-                                width = 1.dp,
-                                color = extraColors.subtleBorder.copy(alpha = 1f - gradientAlpha),
-                                shape = ChipShape,
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = preset.preset.name,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (isActive) Color.White
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                }
             }
         }
     }
@@ -444,6 +478,7 @@ private fun PhaseChips(
 
             Box(
                 modifier = Modifier
+                    .widthIn(max = 120.dp)
                     .graphicsLayer {
                         scaleX = scale
                         scaleY = scale
@@ -487,6 +522,8 @@ private fun PhaseChips(
                         isCompleted -> MaterialTheme.colorScheme.onSurfaceVariant
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

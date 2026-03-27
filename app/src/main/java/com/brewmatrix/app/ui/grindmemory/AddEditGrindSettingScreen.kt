@@ -139,6 +139,14 @@ fun AddEditGrindSettingScreen(
                 )
             } else {
                 // Grinder picker chips
+                if (formState.grinders.isEmpty()) {
+                    Text(
+                        text = "No grinders saved yet — tap + New to add your first",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = extraColors.secondaryText,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -216,6 +224,14 @@ fun AddEditGrindSettingScreen(
                     modifier = Modifier.clickable { viewModel.toggleNewBean(false) },
                 )
             } else {
+                if (formState.beans.isEmpty()) {
+                    Text(
+                        text = "No beans saved yet — tap + New to add your first",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = extraColors.secondaryText,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),

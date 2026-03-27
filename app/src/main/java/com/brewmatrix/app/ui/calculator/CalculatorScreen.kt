@@ -62,7 +62,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.brewmatrix.app.data.local.entity.RatioPreset
@@ -210,6 +212,16 @@ private fun RatioPresetChips(
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        if (presets.isEmpty()) {
+            item {
+                Text(
+                    text = "No presets — tap + to add one",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = BrewMatrixTheme.extraColors.secondaryText,
+                    modifier = Modifier.padding(vertical = 10.dp),
+                )
+            }
+        }
         itemsIndexed(
             items = presets,
             key = { _, preset -> preset.id },
@@ -244,6 +256,7 @@ private fun RatioPresetChips(
 
                 Box(
                     modifier = Modifier
+                        .widthIn(max = 160.dp)
                         .height(40.dp)
                         .combinedClickable(
                             onClick = { onPresetSelected(preset.id) },
@@ -283,6 +296,8 @@ private fun RatioPresetChips(
                         style = MaterialTheme.typography.labelMedium,
                         color = if (isActive) Color.White
                         else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
