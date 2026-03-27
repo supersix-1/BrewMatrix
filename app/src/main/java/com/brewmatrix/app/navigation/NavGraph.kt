@@ -31,6 +31,8 @@ import com.brewmatrix.app.ui.grindmemory.GrindMemoryScreen
 import com.brewmatrix.app.ui.grindmemory.GrindMemoryViewModel
 import com.brewmatrix.app.ui.brewlog.BrewLogScreen
 import com.brewmatrix.app.ui.brewlog.BrewLogViewModel
+import com.brewmatrix.app.ui.settings.SettingsScreen
+import com.brewmatrix.app.ui.settings.SettingsViewModel
 
 enum class BrewMatrixRoute(
     val label: String,
@@ -45,6 +47,10 @@ enum class BrewMatrixRoute(
 // Non-tab routes
 object GrindMemoryRoutes {
     const val ADD = "grind_memory/add"
+}
+
+object SettingsRoutes {
+    const val SETTINGS = "settings"
 }
 
 @Composable
@@ -153,6 +159,35 @@ fun BrewMatrixNavHost(
                 ),
             )
             BrewLogScreen(viewModel = brewLogViewModel)
+        }
+        composable(
+            route = SettingsRoutes.SETTINGS,
+            enterTransition = {
+                slideInHorizontally(tween(300, easing = EaseInOutCubic)) { it }
+            },
+            exitTransition = {
+                slideOutHorizontally(tween(300, easing = EaseInOutCubic)) { it }
+            },
+            popEnterTransition = {
+                slideInHorizontally(tween(300, easing = EaseInOutCubic)) { -it }
+            },
+            popExitTransition = {
+                slideOutHorizontally(tween(300, easing = EaseInOutCubic)) { it }
+            },
+        ) {
+            val settingsViewModel: SettingsViewModel = viewModel(
+                factory = SettingsViewModel.Factory(
+                    preferencesRepository = appContainer.preferencesRepository,
+                    ratioPresetRepository = appContainer.ratioPresetRepository,
+                    brewLogRepository = appContainer.brewLogRepository,
+                    appContainer = appContainer,
+                    application = LocalContext.current.applicationContext as Application,
+                ),
+            )
+            SettingsScreen(
+                viewModel = settingsViewModel,
+                onNavigateBack = { navController.popBackStack() },
+            )
         }
     }
 }

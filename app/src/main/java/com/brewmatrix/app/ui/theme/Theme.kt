@@ -80,9 +80,14 @@ private val DarkBrewMatrixColors = BrewMatrixColors(
 
 @Composable
 fun BrewMatrixTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: String = "system",
     content: @Composable () -> Unit,
 ) {
+    val darkTheme = when (themeMode) {
+        "light" -> false
+        "dark" -> true
+        else -> isSystemInDarkTheme()
+    }
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     val brewMatrixColors = if (darkTheme) DarkBrewMatrixColors else LightBrewMatrixColors
 
