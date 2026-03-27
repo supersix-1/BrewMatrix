@@ -32,6 +32,7 @@ data class SettingsUiState(
     val clearDataStep: ClearDataStep = ClearDataStep.NONE,
     val csvExportReady: Boolean = false,
     val csvExportIntent: Intent? = null,
+    val snackbarMessage: String? = null,
     val appVersion: String = "1.0.0",
 )
 
@@ -113,8 +114,17 @@ class SettingsViewModel(
     fun confirmClearDataFinal() {
         viewModelScope.launch {
             appContainer.clearAllData()
-            _uiState.update { it.copy(clearDataStep = ClearDataStep.NONE) }
+            _uiState.update {
+                it.copy(
+                    clearDataStep = ClearDataStep.NONE,
+                    snackbarMessage = "All data cleared. Default presets restored.",
+                )
+            }
         }
+    }
+
+    fun dismissSnackbar() {
+        _uiState.update { it.copy(snackbarMessage = null) }
     }
 
     fun dismissClearData() {
@@ -125,7 +135,13 @@ class SettingsViewModel(
         viewModelScope.launch {
             val logs = brewLogRepository.getAllWithDetails().first()
             if (logs.isEmpty()) {
-                _uiState.update { it.copy(csvExportReady = false, csvExportIntent = null) }
+                _uiState.update {
+                    it.copy(
+                        csvExportReady = false,
+                        csvExportIntent = null,
+                        snackbarMessage = "No brew logs to export yet.",
+                    )
+                }
                 return@launch
             }
 
@@ -160,6 +176,7 @@ class SettingsViewModel(
                 it.copy(
                     csvExportReady = true,
                     csvExportIntent = Intent.createChooser(shareIntent, "Export Brew Log"),
+                    snackbarMessage = "Brew log ready to export — ${logs.size} entries.",
                 )
             }
         }

@@ -6,7 +6,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,6 +43,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -84,12 +87,22 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val extraColors = BrewMatrixTheme.extraColors
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Handle CSV export intent
     LaunchedEffect(uiState.csvExportReady) {
         if (uiState.csvExportReady && uiState.csvExportIntent != null) {
             context.startActivity(uiState.csvExportIntent)
             viewModel.clearExportState()
+        }
+    }
+
+    // Show snackbar messages
+    LaunchedEffect(uiState.snackbarMessage) {
+        val message = uiState.snackbarMessage
+        if (message != null) {
+            snackbarHostState.showSnackbar(message)
+            viewModel.dismissSnackbar()
         }
     }
 
@@ -143,6 +156,7 @@ fun SettingsScreen(
         ClearDataStep.NONE -> { /* no dialog */ }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -411,7 +425,20 @@ fun SettingsScreen(
                 )
             }
         }
-    }
+    } // end LazyColumn
+
+    SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = Modifier.align(Alignment.BottomCenter),
+        snackbar = { data ->
+            Snackbar(
+                snackbarData = data,
+                containerColor = MaterialTheme.colorScheme.inverseSurface,
+                contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+            )
+        },
+    )
+    } // end Box
 }
 
 // ── Reusable Components ──
@@ -428,7 +455,7 @@ private fun SettingsSectionCard(
     }
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(tween(250)) + expandVertically(tween(250)),
+        enter = fadeIn(tween(300)),
     ) {
         Box(
             modifier = Modifier
